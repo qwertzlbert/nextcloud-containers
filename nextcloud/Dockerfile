@@ -38,7 +38,7 @@ RUN mkdir /var/www/data; \
 
 VOLUME /var/www/html
 
-COPY *.sh upgrade.exclude /
+COPY nextcloud/*.sh nextcloud/upgrade.exclude /
 
 VOLUME \
     [ \
