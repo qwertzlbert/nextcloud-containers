@@ -19,12 +19,37 @@ RUN \
 FROM php:8.1.18-fpm-alpine3.17
 COPY --from=BUILD /usr/src/nextcloud /usr/src/nextcloud
 
+# Basic dependencies
+RUN set -ex; \
+    \
+    apk add --no-cache \
+        imagemagick \
+        rsync \
+    ; \
+    \
+    rm /var/spool/cron/crontabs/root; \
+    echo '*/5 * * * * php -f /var/www/html/cron.php' > /var/spool/cron/crontabs/www-data
+
+# PHP extensions
+
 RUN mkdir /var/www/data; \
     chown -R www-data:root /var/www; \
     chmod -R g=u /var/www
 
+VOLUME /var/www/html
+
 COPY *.sh upgrade.exclude /
-COPY config/* /usr/src/nextcloud/config/
+
+VOLUME \
+    [ \
+        "/usr/src/nextcloud/config/", \
+        "/php/config", \
+        "/php-fpm/config", \
+        "/var/www/html" \
+    ]
+
+RUN chmod +x /entrypoint.sh; \
+    chmod +x /cron.sh;
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm"]
