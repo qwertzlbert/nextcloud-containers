@@ -98,8 +98,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.refsha.outputs.value }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ matrix.version }}
             ghcr.io/${{ github.repository_owner }}/${{ matrix.base }}:${{ steps.targettag.outputs.value }}-${{ matrix.version }}
-          containerfiles: |
-            "${{ matrix.base }}/Dockerfile"
+          containerfiles: "${{ matrix.base }}/Dockerfile"
           build-args: |
             git_version=${{ matrix.git_version }}
           oci: true
