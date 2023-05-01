@@ -51,7 +51,5 @@ VOLUME \
 RUN chmod +x /entrypoint.sh; \
     chmod +x /cron.sh;
 
-RUN useradd -M www-data
-
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["php-fpm"]
