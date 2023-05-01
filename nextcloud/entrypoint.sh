@@ -43,6 +43,24 @@ file_env() {
     unset "$fileVar"
 }
 
+# This function will ensure all interfaces are UP
+# and udhcpc was run at least once
+# This is required for use with nspawn
+ensure_network() {
+    # find all network devices and make them available
+    local interfaces=$(ls /sys/class/net/ | grep -v lo)
+
+    # start all interfaces
+    for interface in $interfaces ; do
+        ip link set dev "$interface" up
+    done
+
+    # start DHCP client on all interfaces
+    for interface in $interfaces ; do
+        udhcpc -i "$interface" -n -q &
+    done
+}
+
 if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UPDATE:-0}" -eq 1 ]; then
     uid="$(id -u)"
     gid="$(id -g)"
@@ -65,6 +83,8 @@ if expr "$1" : "apache" 1>/dev/null || [ "$1" = "php-fpm" ] || [ "${NEXTCLOUD_UP
         user="$uid"
         group="$gid"
     fi
+
+    ensure_network
 
     # copy whatever is in "/php/config" and "/php-fpm/config" to config directories
     rsync -rlD /php/config/ ${PHP_INI_DIR}/conf.d/
